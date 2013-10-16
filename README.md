@@ -9,7 +9,7 @@ This loader is especially useful, if you want to load ALL data from the TSA to y
 
 
 To use this bootstrap loader, please configure your ehcache.xml file with the following settings:
-<bootstrapCacheLoaderFactory class="org.sg.ehcache.bootstrapper.BootstrapFactory" properties="bootstrapAsynchronously=true,Threads=5,SleepMsec=10"/>
+'bootstrapCacheLoaderFactory class="org.sg.ehcache.bootstrapper.BootstrapFactory" properties="bootstrapAsynchronously=true,Threads=5,SleepMsec=10"/'
 
 
 Available properties are:
