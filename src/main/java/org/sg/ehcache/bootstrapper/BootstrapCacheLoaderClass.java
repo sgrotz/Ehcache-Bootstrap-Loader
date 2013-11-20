@@ -52,59 +52,76 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 		// TODO Auto-generated method stub
 		
 		System.out.println("*** Starting Bootstrap Loading for " + cache.getName());
-		
 		this.ehcache = cache;
+		
+		System.out.println("*** Enabling BulkLoading for " + cache.getName());
+		this.ehcache.setNodeBulkLoadEnabled(true);
+		
+		// This is an odd one - It seems that the cache.getKeys() results in a java.lang.UnsupportedOperationException
+		// This is caused by java.util.SubList.get(AbstractList.java:621) 
 		keys = cache.getKeysWithExpiryCheck();
+		//keys = cache.getKeys();
+		System.out.println("*** The cache contains a total of: " + keys.size() + " objects...");
 		
-		if (keys.size() > 0) {
-			System.out.println("*** Loading a total of: " + keys.size() + " objects, using " + threadCount + " threads - Sleep time set to " + sleepTime + " msecs...");
 		
-			int objectsPerThread = keys.size() / threadCount;
+		try {
+			if (keys.size() > 0) {
+				System.out.println("*** Loading a total of: " + keys.size() + " objects, using " + threadCount + " threads - Sleep time set to " + sleepTime + " msecs...");
 			
-			this.start = 0;
-			this.end = start + objectsPerThread;
-			
+				int objectsPerThread = keys.size() / threadCount;
 				
-			Thread[] threads = new Thread[threadCount];
-			for (int i = 0; i < threads.length; i++) {
+				this.start = 0;
+				this.end = start + objectsPerThread;
+				
+					
+				Thread[] threads = new Thread[threadCount];
+				for (int i = 0; i < threads.length; i++) {
 
-				//System.out.println("Starting Thread " + i);
-				threads[i] = new Thread() {
+					//System.out.println("Starting Thread " + i);
+					threads[i] = new Thread() {
 
-					public void run() {
-						System.out.println("Thread: " + Thread.currentThread().getId() + " is processing items " + Integer.valueOf(start) + " up to " + Integer.valueOf(end));
-						List<String> subList = keys.subList(Integer.valueOf(start), Integer.valueOf(end));
-						loadData(subList);
+						public void run() {
+							System.out.println("Thread: " + Thread.currentThread().getId() + " is processing items " + Integer.valueOf(start) + " up to " + Integer.valueOf(end));
+							List<String> subList = keys.subList(Integer.valueOf(start), Integer.valueOf(end));
+							loadData(subList);
+							//loadData(keys);
+						}
+					};
+					threads[i].start();
+					
+					// Timing issue - need to wait for the thread to initiate first. Give it a second to start! 
+					// WIll need to check why later on...
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				};
-				threads[i].start();
-				
-				// Timing issue - need to wait for the thread to initiate first. Give it a second to start! 
-				// WIll need to check why later on...
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					start = start + objectsPerThread;
+					end = end + objectsPerThread;
 				}
-				start = start + objectsPerThread;
-				end = end + objectsPerThread;
-			}
-			
-			for (int i = 0; i < threads.length; i++) {
-				try {
-					threads[i].join();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 				
-			
-		} else {
-			System.out.println("*** Cache is empty - Will exit! ...");
+				for (int i = 0; i < threads.length; i++) {
+					try {
+						threads[i].join();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+					
+				
+			} else {
+				System.out.println("*** Cache is empty - Will exit! ...");
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("*** ERROR occurred during bootstrap ***");
+			e.printStackTrace();
 		}
 
+		this.ehcache.setNodeBulkLoadEnabled(false);
+		System.out.println("*** Disabling BulkLoading for " + cache.getName());
 		System.out.println("*** Finished Bootstrap Loading for " + cache.getName());
 		
 		//Only for testing purposes :)
@@ -121,7 +138,7 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 	 */
 	private void loadData(List items) {
 		
-		for (int i = 0; i < items.size(); i++) {
+		/* for (int i = 0; i < items.size(); i++) {
 			ehcache.get(items.get(i));
 			try {
 				Thread.sleep(sleepTime);
@@ -129,11 +146,11 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		} */
 		
 		
 		// Lets not take the getAll, as it can lead to OOME
-		//cache.getAll(items);
+		ehcache.getAll(items);
 		
 	}
 
