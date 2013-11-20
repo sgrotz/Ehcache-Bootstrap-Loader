@@ -1,5 +1,8 @@
 package org.sg.ehcache.bootstrapper;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,18 +14,20 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 
 	private int threadCount = 1;
 	private int sleepTime = 200;
+	private boolean useBulkLoadAPI = true;
 	
 	/**
 	 * Constructor to create a Cache Loader.
 	 * @param threadCount
 	 * @param sleepTime
 	 */
-	public BootstrapCacheLoaderClass(int threadCount, int sleepTime) {
+	public BootstrapCacheLoaderClass(int threadCount, int sleepTime, Boolean useBulkLoadAPI) {
 		if (threadCount == 0) {
 			this.threadCount = 3;
 		}
 		this.threadCount = threadCount;
 		this.sleepTime = sleepTime;
+		this.useBulkLoadAPI = useBulkLoadAPI;
 	}
 	
 	
@@ -51,11 +56,17 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 	public void load(Ehcache cache) throws CacheException {
 		// TODO Auto-generated method stub
 		
-		System.out.println("*** Starting Bootstrap Loading for " + cache.getName());
+		
+		
+		System.out.println("*** Starting Bootstrap Loading for " + cache.getName() + " at " + getCurrentTime());
 		this.ehcache = cache;
 		
-		System.out.println("*** Enabling BulkLoading for " + cache.getName());
-		this.ehcache.setNodeBulkLoadEnabled(true);
+		if (useBulkLoadAPI) {
+			System.out.println("*** Enabling BulkLoad API for " + cache.getName());
+			this.ehcache.setNodeBulkLoadEnabled(true);
+		}
+		
+		System.out.println("*** Getting all keys for cache " + cache.getName() + " ... (could take a while!)");
 		
 		// This is an odd one - It seems that the cache.getKeys() results in a java.lang.UnsupportedOperationException
 		// This is caused by java.util.SubList.get(AbstractList.java:621) 
@@ -120,9 +131,12 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 			e.printStackTrace();
 		}
 
-		this.ehcache.setNodeBulkLoadEnabled(false);
-		System.out.println("*** Disabling BulkLoading for " + cache.getName());
-		System.out.println("*** Finished Bootstrap Loading for " + cache.getName());
+		if (useBulkLoadAPI) {
+			this.ehcache.setNodeBulkLoadEnabled(false);
+			System.out.println("*** Disabling BulkLoad API for " + cache.getName());
+		}
+		
+		System.out.println("*** Finished Bootstrap Loading for " + cache.getName() + " at " + getCurrentTime());
 		
 		//Only for testing purposes :)
 		//System.exit(0);
@@ -152,6 +166,12 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 		// Lets not take the getAll, as it can lead to OOME
 		ehcache.getAll(items);
 		
+	}
+	
+	private String getCurrentTime() {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		return dateFormat.format(date);
 	}
 
 }

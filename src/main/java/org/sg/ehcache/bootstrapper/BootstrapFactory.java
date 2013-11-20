@@ -25,7 +25,12 @@ public class BootstrapFactory extends BootstrapCacheLoaderFactory{
 			sleepTime = props.getProperty("SleepMsec");
 		} 
 		
-		return new BootstrapCacheLoaderClass(Integer.valueOf(threads), Integer.valueOf(sleepTime));
+		String useBulk = "true";
+		if (props.containsKey("useBulkLoad")) {
+			useBulk = props.getProperty("useBulkLoad");
+		} 
+		
+		return new BootstrapCacheLoaderClass(Integer.valueOf(threads), Integer.valueOf(sleepTime), Boolean.valueOf(useBulk));
 	}
 
 }
