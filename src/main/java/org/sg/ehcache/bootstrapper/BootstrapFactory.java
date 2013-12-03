@@ -4,6 +4,7 @@ import java.util.Properties;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 
+
 @SuppressWarnings("rawtypes")
 public class BootstrapFactory extends BootstrapCacheLoaderFactory{
 
@@ -30,7 +31,12 @@ public class BootstrapFactory extends BootstrapCacheLoaderFactory{
 			useBulk = props.getProperty("useBulkLoad");
 		} 
 		
-		return new BootstrapCacheLoaderClass(Integer.valueOf(threads), Integer.valueOf(sleepTime), Boolean.valueOf(useBulk));
+		String isAsync = "false";
+		if (props.containsKey("bootstrapAsynchronously")) {
+			useBulk = props.getProperty("bootstrapAsynchronously");
+		} 
+		
+		return new BootstrapCacheLoaderClass(Integer.valueOf(threads), Integer.valueOf(sleepTime), Boolean.valueOf(useBulk), Boolean.valueOf(isAsync));
 	}
 
 }
