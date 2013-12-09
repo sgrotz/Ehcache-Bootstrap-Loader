@@ -22,8 +22,11 @@ Available properties are:
 
 Performance metrics: 
 During test runs (with 5 threads), the following performance metrics were measured:
+```
 Run #1: *** Bootstrapping 158555 elements (224598 kbytes) took: 25639 msec, averaging at approx 6000 elements/sec (8000 kbytes/sec)
 Run #2: *** Bootstrapping 169265 elements (239721 kbytes) took: 27155 msec, averaging at approx 6000 elements/sec (8000 kbytes/sec)
 Run #3: *** Bootstrapping 189694 elements (268651 kbytes) took: 30076 msec, averaging at approx 6000 elements/sec (8000 kbytes/sec)
+```
+
 
 Enjoy :)
