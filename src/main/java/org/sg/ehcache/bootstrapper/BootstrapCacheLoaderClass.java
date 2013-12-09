@@ -60,9 +60,8 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 	public void load(Ehcache cache) throws CacheException {
 		// TODO Auto-generated method stub
 		
-		
-		
 		System.out.println("*** Starting Bootstrap Loading for " + cache.getName() + " at " + getCurrentTime());
+		long startTime = System.currentTimeMillis();
 		this.ehcache = cache;
 		
 		if (useBulkLoadAPI) {
@@ -85,7 +84,7 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 		
 		try {
 			if (keys.size() > 0) {
-				System.out.println("*** Loading a total of: " + keys.size() + " objects, using " + threadCount + " threads - Sleep time set to " + sleepTime + " msecs...");
+				System.out.println("*** Loading a total of: " + keys.size() + " objects, using " + threadCount + " threads - Sleep time set to " + sleepTime + " msecs..."+ " at " + getCurrentTime());
 			
 				int objectsPerThread = keys.size() / threadCount;
 				
@@ -146,7 +145,14 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 			System.out.println("*** Disabling BulkLoad API for " + cache.getName());
 		}
 		
+		
+		
+		long endTime = System.currentTimeMillis();
+		long duration = endTime - startTime;
+		long cacheSize = (cache.getStatistics().getLocalHeapSizeInBytes() + cache.getStatistics().getLocalOffHeapSizeInBytes()) / 1024;
+		
 		System.out.println("*** Finished Bootstrap Loading for " + cache.getName() + " at " + getCurrentTime());
+		System.out.println("*** Bootstrapping " + keys.size() +" elements ("+ cacheSize + " kbytes) took: " + duration + " msec, averaging at approx " + (  keys.size() / duration * 1000) + " elements/sec (" + (cacheSize / duration * 1000) + " kbytes/sec)");
 		
 		//Only for testing purposes :)
 		//System.exit(0);
@@ -186,7 +192,7 @@ public class BootstrapCacheLoaderClass implements BootstrapCacheLoader {
 	 * @return currentTimeStamp
 	 */
 	private String getCurrentTime() {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
 		Date date = new Date();
 		return dateFormat.format(date);
 	}
