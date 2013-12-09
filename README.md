@@ -11,6 +11,7 @@ The Bootstrap-Loader can be used for Ehcache to load all data from the Terracott
 This loader is especially useful, if you want to load ALL data from the TSA to your local client. If you only want to preload the objects, which were in the cache before the shutdown, please take a look at: http://ehcache.org/documentation/2.4/user-guide/configuration#terracottabootstrapcacheloaderfactory
 
 
+
 To use this bootstrap loader, please configure your ehcache.xml file with the following settings:
 ```
 <bootstrapCacheLoaderFactory class="org.sg.ehcache.bootstrapper.BootstrapFactory" properties="bootstrapAsynchronously=false,Threads=5,SleepMsec=10,useBulkLoad=true"/>
@@ -23,9 +24,11 @@ To use this bootstrap loader, please configure your ehcache.xml file with the fo
 * *useBulkLoad*: Boolean field - indicates if the bulk load API shall be used for the bootstrapping. This may be useful, if the cache is using non-stop features.
 
 
+
 ---
 
 ##### Performance metrics: 
+
 During test runs (with 5 threads), the following performance metrics were measured:
 ```
 Run #1: *** Bootstrapping 158555 elements (224598 kbytes) took: 25639 msec, averaging at approx 6000 elements/sec (8000 kbytes/sec)
